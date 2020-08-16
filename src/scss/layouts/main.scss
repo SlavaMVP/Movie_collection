@@ -1,0 +1,229 @@
+.main {
+  max-width: $default-screen-width;
+  margin: 0 auto;
+}
+
+.movies-navigation {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-top: 3.8rem;
+  padding-bottom: 3.2rem;
+
+  @include respond(phone) {
+   flex-direction: column;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  &__header {
+    display: block;
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: $primary-color-blue;
+    max-width: 17.5rem;
+    padding-left: .3rem;
+    line-height: 3.9rem;
+
+    @include respond(phone) {
+      max-width: 100%;
+      padding-bottom: 2rem;
+      text-align: center;
+    }
+  }
+
+  .form-control {
+    border: 1px solid $primary-color-blue;
+    border-radius: 0;
+  }
+
+  .form-control, .input-group {
+    align-self: flex-end;
+    max-width: 77rem;
+    height: 4.4rem;
+
+  }
+
+  .input-group {
+    position: relative;
+
+    .form-control {
+      font-family: Roboto, sans-serif;
+      font-size: 1.8rem;
+      padding-left: 1.8rem;
+      letter-spacing: -.1rem;
+    }
+    .btn-style {
+      position: absolute;
+      right: .15rem;
+      top: .15rem;
+
+      height: 4.1rem;
+      width: 4.1rem;
+      z-index: 200;
+
+      .fa-search {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}
+
+.main__content-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 200px;
+  grid-gap: 2.2rem;
+
+  @include respond(tab-port) {
+    grid-template-columns: repeat(2, 1fr);
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+
+  @include respond(phone) {
+    grid-template-columns: 1fr;
+  }
+
+.item {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: relative;
+
+    background-color: $primary-color-gray;
+    transition: all .5s;
+
+  &:hover {
+    background-size: contain;
+    background-position: left;
+
+    & .item__header {
+      font-size: 2rem;
+    }
+
+    & .item__info-wrapper {
+      width: 60%;
+    }
+    }
+
+    &__header {
+      font-size: 2.9rem;
+      font-weight: bold;
+      color: $primary-color-white;
+      text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+
+      position: absolute;
+      bottom: 0;
+      right: 0;
+
+      padding: 0;
+      margin-right: 2.3rem;
+      margin-bottom: 6rem;
+
+      background-color: rgba(0, 0, 0, 0);
+      transition: all .5s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, .5);
+      }
+    }
+
+    &__info-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+      justify-content: space-between;
+
+      position: absolute;
+      bottom: 0;
+      right: 0;
+
+      width: 82%;
+
+      color: $primary-color-white;
+
+      background-color: rgba($primary-color-blue, 0.8);
+      transition: all .5s;
+    }
+
+    &__info-type, &__info-year {
+      font-family: "Myriad Pro", sans-serif;
+      font-size: 1.6rem;
+      padding: 1rem 2rem;
+      margin: 0;
+    }
+  }
+
+
+}
+
+.result__pages {
+  width: 100%;
+
+  .pages__info {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.4rem 0 2rem;
+
+    font-family: Roboto, sans-serif;
+    font-size: 1.5rem;
+    color: #000;
+
+    @include respond(tab-port) {
+      justify-content: center;
+    }
+  }
+
+  .results__overview {
+
+    @include respond(tab-port) {
+      display: none;
+    }
+
+    .results__per-page {
+      margin-right: 6rem;
+    }
+
+    .results__current {
+      margin-right: .5rem;
+    }
+
+    .results__total {
+      margin-right: 3.5rem;
+      margin-left: .5rem;
+    }
+
+  }
+  .pages__wrapper {
+    .btn-inline {
+      border: none;
+      background-color: transparent;
+
+      @include respond(tab-port) {
+        background-color: rgba($primary-color-blue, .8);
+        padding: 2rem;
+        border-radius: .5rem;
+        color: $primary-color-white;
+        font-weight: bold;
+        transition: all .5s;
+
+        &:hover {
+          background-color: rgba($primary-color-blue, 1);
+          transform: translateY(-.5rem);
+          box-shadow: 0 .5rem 1.5rem rgba($primary-color-blue,0.5);
+      }
+      }
+
+    }
+
+    .results__btn--prev {
+      margin-right: 1.2rem;
+    }
+  }
+}
+
