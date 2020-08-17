@@ -1,8 +1,23 @@
 import './scss/index.scss'
 import axios from "axios"
 import { elements, renderLoader, clearLoader } from '@/js/base'
-import key from "@/js/utils"
+import { key, proxy } from "@/js/utils"
 
+//get our dom elements
+const searchResultWrapper = elements.searchResultWrapper;
+const searchInput = elements.searchInput;
+searchInput.focus();
+const searchButton = elements.searchButton;
+
+//initial state ( немного jquery, зря что-ли подключал;) )
+$( document ).ready((e) => {
+    console.log('hello2')
+    let query = 'god';
+    /*state.search = new Search(query, 1);
+        searchResultWrapper.innerHTML = '';
+        buttonsWrapper.innerHTML = '';*/
+    controlSearch(e, query);
+})
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////SEARCH MODEL
 class Search {
@@ -13,7 +28,7 @@ class Search {
 
     async getResults() {
         try {
-            const res = await axios.get(`http://www.omdbapi.com/?apikey=${key.key}&page=${this.page}&plot=full&s=${this.query}`)
+            const res = await axios.get(`${proxy}http://www.omdbapi.com/?apikey=${key}&page=${this.page}&plot=full&s=${this.query}`)
             this.results = res.data;
         } catch (error) {
             alert(`Error from Search model, ${error}`)
@@ -22,9 +37,6 @@ class Search {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////SEARCH VIEW
-
-const searchResultWrapper = elements.searchResultWrapper
-
 const renderMoviePrev = movie => {
     const markup =
         `
@@ -50,7 +62,7 @@ const createButton = (page, type) =>
     `
 ;
 
-const buttonsWrapper = document.querySelector('.result__pages');//
+const buttonsWrapper = elements.buttonsWrapper;
 
 const renderPagination = (page, numResults, resPerPage) => {
     const pages = Math.ceil(numResults / resPerPage);
@@ -111,37 +123,48 @@ const renderResults = (movies, page) => {
 //////////////////////////////////////////////////////////////////////////////////////////////////////SEARCH CONTROLLER
 
 const state = {}
-const searchInput = document.querySelector('#searchInp');//
-searchInput.focus();
-
-const controlSearch = async () => {
-    //1) Get query from view
+//////////////////////////////////////////////////////////////////////////////////////////////Magic happen here!!!!!
+const controlSearch = async (e, a = null) => {
+    //1) Get query from view or local storage
     let query = searchInput.value;
+    let goToPage;
+    if (query) {
+        function setDataToLocalStorage (item) {
+            localStorage.setItem('lastQuery', JSON.stringify(item))
+        }
 
-    function setDataToLocalStarage (item) {
-        localStorage.setItem('lastQuery', JSON.stringify(item))
+        setDataToLocalStorage(query);
+        goToPage = 1;
+    } else if (a) {
+        query = a;
+        goToPage = 1;
+    } else {
+        async function getDataFromLocalStorage () {
+            const storage = await JSON.parse(localStorage.getItem('lastQuery'));
+            if (storage) {
+                return query = storage
+            }
+        }
+        query = await getDataFromLocalStorage();
+        const btn = e.target.closest('.btn-inline');
+        goToPage = parseInt(btn.dataset.goto, 10);
     }
-
-    setDataToLocalStarage(query);
 
     if (query) {
         //2) Create new Search obj
-        state.search = new Search(query, 1)
-
+        state.search = new Search(query, goToPage);
         //3) Prepare UI for results
         searchInput.value = '';
         searchResultWrapper.innerHTML = '';
         buttonsWrapper.innerHTML = '';
         //loader
         renderLoader(elements.searchResultWrapper)
-
-
         try {
             //4) Search for movies
             await state.search.getResults();
             //stop loader
             clearLoader()
-            renderResults(state.search.results, 1);
+            renderResults(state.search.results, goToPage);
         } catch (error) {
             console.log(`Error from controller: ${error}`)
             //stop loader
@@ -149,72 +172,32 @@ const controlSearch = async () => {
         }
     }
 }
+///////////////////////////////////////////////////////////////////////////////////////buttons
 
-const searchButton = document.querySelector('#searchBtn');//
 searchButton.addEventListener('click', e => {
     e.preventDefault();
-    controlSearch();
+    controlSearch(e);
 })
 searchButton.addEventListener('keyup', e => {
     if(e.code === 'Enter') {
         e.preventDefault();
-        controlSearch();
+        controlSearch(e);
     }
 })
 searchInput.addEventListener('keyup', e => {
     if(e.code === 'Enter') {
         e.preventDefault();
-        controlSearch();
+        controlSearch(e);
     }
 })
 
 buttonsWrapper.addEventListener('click', e => {
-    const btn = e.target.closest('.btn-inline');
-    if (btn) {
-        const goToPage = parseInt(btn.dataset.goto, 10);
-        searchResultWrapper.innerHTML = '';
-        buttonsWrapper.innerHTML = '';
-
-        const controlSearch = async () => {
-            //1) Get query from local storage
-            let query;
-            async function getDataFromLocalStorage () {
-                const storage = await JSON.parse(localStorage.getItem('lastQuery'));
-                if (storage) {
-                    return query = storage
-                }
-            }
-
-            query = await getDataFromLocalStorage();
-
-            if (query) {
-                //2) Create new Search obj
-                state.search = new Search(query, goToPage)
-
-                //3) Prepare UI for results
-                searchResultWrapper.innerHTML = '';
-                buttonsWrapper.innerHTML = '';
-                //loader
-                renderLoader(elements.searchResultWrapper)
-
-                try {
-                    //4) Search for movies
-                    await state.search.getResults();
-                    //stop loader
-                    clearLoader()
-
-
-                    await renderResults(state.search.results, goToPage);
-                } catch (error) {
-                    alert(`Error from controller: ${error}`)
-                    //stop loader
-                    clearLoader()
-                }
-            }
-        }
-        controlSearch();
+    controlSearch(e);
+})
+buttonsWrapper.addEventListener('keyup', e => {
+    if(e.code === 'Enter') {
+        controlSearch(e)
     }
 })
-
 
 
